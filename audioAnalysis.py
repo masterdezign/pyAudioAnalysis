@@ -223,11 +223,11 @@ def silenceRemovalWrapper(inputFile, smoothingWindow, weight):
         wavfile.write(strOut, Fs, x[int(Fs * s[0]):int(Fs * s[1])])
 
 
-def speakerDiarizationWrapper(inputFile, numSpeakers, useLDA):
+def speakerDiarizationWrapper(inputFile, numSpeakers, modelDir, useLDA):
     if useLDA:
-        aS.speakerDiarization(inputFile, numSpeakers, PLOT=True)
+        aS.speakerDiarization(inputFile, numSpeakers, modelDir=modelDir, PLOT=True)
     else:
-        aS.speakerDiarization(inputFile, numSpeakers, LDAdim=0, PLOT=True)
+        aS.speakerDiarization(inputFile, numSpeakers, modelDir=modelDir, LDAdim=0, PLOT=True)
 
 
 def thumbnailWrapper(inputFile, thumbnailWrapperSize):
@@ -395,6 +395,7 @@ def parse_arguments():
     spkrDir = tasks.add_parser("speakerDiarization")
     spkrDir.add_argument("-i", "--input", required=True, help="Input audio file")
     spkrDir.add_argument("-n", "--num", type=int, required=True, help="Number of speakers")
+    spkrDir.add_argument("-m", "--modeldir", required=False, default="data", help="Directory with trained models")
     spkrDir.add_argument("--flsd", action="store_true",  help="Enable FLsD method")
 
     speakerDiarizationScriptEval = tasks.add_parser("speakerDiarizationScriptEval", help="Train an SVM or KNN classifier")
@@ -463,7 +464,7 @@ if __name__ == "__main__":
     elif args.task == "silenceRemoval":                                                       # Detect non-silent segments in a WAV file and output to seperate WAV files
         silenceRemovalWrapper(args.input, args.smoothing, args.weight)
     elif args.task == "speakerDiarization":                                                   # Perform speaker diarization on a WAV file
-        speakerDiarizationWrapper(args.input, args.num, args.flsd)
+        speakerDiarizationWrapper(args.input, args.num, args.modeldir, args.flsd)
     elif args.task == "speakerDiarizationScriptEval":                                         # Evaluate speaker diarization given a folder that contains WAV files and .segment (Groundtruth files)
         aS.speakerDiarizationEvaluateScript(args.input, args.LDAs)
     elif args.task == "thumbnail":                                                            # Audio thumbnailing
